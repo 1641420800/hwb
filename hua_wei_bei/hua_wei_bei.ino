@@ -78,6 +78,7 @@ void loop() {
   Serial.print(cgq.tr);
   Serial.print("\r\n");
 
+
   kaiguan();
 }
 void dth() {      //dth11
