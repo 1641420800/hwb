@@ -121,7 +121,7 @@ void loop()
       for (i = 0; i < hc_i; i++) p2->ml[i] = hc[i];
       p2 = p2->p;
       hc_i = 0;
-      hc[hc_i] = '\n';s
+      hc[hc_i] = '\n';
     }
     hc_i++;
   }

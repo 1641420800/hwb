@@ -1,0 +1,9 @@
+diff a/zhong_zhuan/zhong_zhuan.ino b/zhong_zhuan/zhong_zhuan.ino	(rejected hunks)
+@@ -121,6 +121,7 @@
+       for (i = 0; i < hc_i; i++) p2->ml[i] = hc[i];
+       p2 = p2->p;
+       hc_i = 0;
++      hc[hc_i] = '\n';s
+     }
+     hc_i++;
+   }
