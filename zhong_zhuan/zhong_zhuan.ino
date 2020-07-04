@@ -113,6 +113,7 @@ void setup()
 void loop()
 {
   int i;
+  ML *p = NULL;
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
     Serial.print(hc[hc_i]);
@@ -127,6 +128,7 @@ void loop()
   }
   while (p1->p) {
     Serial.println(p1->ml);
+    
     p = p1;
     p1 = p1->p;
     delete p;
