@@ -115,12 +115,13 @@ void loop()
   int i;
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
+    Serial.print(hc[hc_i]);
     if (hc[hc_i] == '\n' && hc_i != 0) {
       p2->p = new ML;
       for (i = 0; i < hc_i; i++) p2->ml[i] = hc[i];
       p2 = p2->p;
       hc_i = 0;
-      hc[hc_i] = '\n';
+      hc[hc_i] = '\n';s
     }
     hc_i++;
   }
