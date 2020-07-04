@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 #include <LiquidCrystal.h>
 //========================================================================
-struct ML{
+struct ML {
   char ml[200] = {'\0'};
   struct ML *p = NULL;
 };
@@ -11,7 +11,7 @@ SoftwareSerial esp(6, 7); //定义虚拟串口名为serial,rx为6号端口,tx为
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 char a;
-struct ML *p1 = new struct ML,*p2 = p1;
+struct ML *p1 = new struct ML, *p2 = p1;
 const char fg = ',';                     //分隔符
 char hc[200] = {0};
 int  hc_i    = 0;
@@ -38,7 +38,7 @@ int jk(const char *p1, const char *p2) {        //监控 监测Wifi串口 与 �
 }
 //========================================================================
 void cwtz() {         //错误处理
-  
+
 }
 //========================================================================
 void esp8266_csh() {        //ESP-01初始化             -------------          未完成
@@ -113,16 +113,22 @@ void setup()
 void loop()
 {
   int i;
-  while(Serial.available()){
+  while (Serial.available()) {
     hc[hc_i] = Serial.read();
-    if(hc[hc_i] == '\n' && hc_i != 0){
+    if (hc[hc_i] == '\n' && hc_i != 0) {
       p2->p = new ML;
-      for(i=0;i<hc_i;i++) p2->ml[i]=hc[i];
+      for (i = 0; i < hc_i; i++) p2->ml[i] = hc[i];
       p2 = p2->p;
-      hc_i=0;
+      hc_i = 0;
       hc[hc_i] = '\n';
     }
     hc_i++;
+  }
+  while (p1->p) {
+    Serial.println(p1->ml);
+    p = p1;
+    p1 = p1->p;
+    delete p;
   }
   if (esp.available()) //虚拟串口的用法和默认串口的用法基本一样
   {
