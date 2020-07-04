@@ -34,7 +34,7 @@ Adafruit_SGP30 SGP;
 void dth();      //dth11
 void sgp();      //sgp30
 void gkt();
-void kaiguan();
+void kaiguan();  //开关
 
 void setup() {
   Serial.begin(9600);
