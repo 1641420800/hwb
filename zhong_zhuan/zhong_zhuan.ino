@@ -1,11 +1,18 @@
 #include <SoftwareSerial.h>
 #include <LiquidCrystal.h>
 //========================================================================
+struct ML{
+  char ml[200] = {'\0'};
+  struct ML *p = NULL;
+};
+//========================================================================
 const int rs = 8, en = 9, d4 = 10, d5 = 11, d6 = 12, d7 = 13;
 SoftwareSerial esp(6, 7); //定义虚拟串口名为serial,rx为6号端口,tx为7号端口
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 char a;
+struct ML *p1 = new struct ML,*p2 = p1;
+const char fg = ',';                     //分隔符
 char hc[200] = {0};
 int  hc_i    = 0;
 //========================================================================
@@ -35,26 +42,26 @@ void cwtz() {         //错误处理
 }
 //========================================================================
 void esp8266_csh() {        //ESP-01初始化             -------------          未完成
-  Wifi.print("AT+CWMODE=1\r\n");  // OK
-  tssc("Wifi:1");
+  esp.print("AT+CWMODE=1\r\n");  // OK
+  tssc("esp:1");
   if (jk("OK", "OK") == -1) cwtz();
-  Wifi.print("AT+CWJAP=\"Yxg-164\",\"1641420800\"\r\n");  // OK  or  ERROR
-  tssc("Wifi:2");
+  esp.print("AT+CWJAP=\"Yxg-164\",\"1641420800\"\r\n");  // OK  or  ERROR
+  tssc("esp:2");
   if (jk("OK", "IP") == -1) cwtz();
-  Wifi.print("AT+CIPMUX=0\r\n");  // OK  or  Link is builded
-  tssc("Wifi:3");
+  esp.print("AT+CIPMUX=0\r\n");  // OK  or  Link is builded
+  tssc("esp:3");
   if (jk("OK", "Link is builded") != 1) cwtz();
-  Wifi.print("AT+CIPMODE=1\r\n");  // OK  or  Link is builded
-  tssc("Wifi:4");
+  esp.print("AT+CIPMODE=1\r\n");  // OK  or  Link is builded
+  tssc("esp:4");
   if (jk("OK", "Link is builded") != 1) cwtz();
-  Wifi.print("AT+CIPSTART=\"TCP\",\"192.168.1.100\",16414\r\n");    // OK  or  ERROR
-  tssc("Wifi:5");
+  esp.print("AT+CIPSTART=\"TCP\",\"192.168.1.100\",16414\r\n");    // OK  or  ERROR
+  tssc("esp:5");
   if (jk("OK", "ERROR") != 1) cwtz();
-  Wifi.print("AT+CIPSEND\r\n");
-  tssc("Wifi:6");
+  esp.print("AT+CIPSEND\r\n");
+  tssc("esp:6");
   delay(20);
-  Wifi.print("hi=159168974976707559569020789401076400678587331858799877810869,che,1\r\n");    // OK  or  ERROR
-  tssc("Wifi:7");
+  esp.print("hi=159168974976707559569020789401076400678587331858799877810869,che,1\r\n");    // OK  or  ERROR
+  tssc("esp:7");
   if (jk("ok", "ok") == -1) cwtz();
   tssc("GO     ");
 }
@@ -105,12 +112,17 @@ void setup()
 //========================================================================
 void loop()
 {
+  int i;
   while(Serial.available()){
     hc[hc_i] = Serial.read();
-    if(hc[hc_i] == '\n'){
-      
+    if(hc[hc_i] == '\n' && hc_i != 0){
+      p2->p = new ML;
+      for(i=0;i<hc_i;i++) p2->ml[i]=hc[i];
+      p2 = p2->p;
+      hc_i=0;
+      hc[hc_i] = '\n';
     }
-    hc++;
+    hc_i++;
   }
   if (esp.available()) //虚拟串口的用法和默认串口的用法基本一样
   {
