@@ -1,7 +1,7 @@
 #include <dht11.h>          //包含dht11.h
 #include "Adafruit_SGP30.h"
 
-#define bianhao   1
+#define bianhao  "1"
 #define gm       A6
 #define co2_scl  A5
 #define co2_sda  A4
@@ -11,8 +11,8 @@
 enum
 {
   GM = 2, CO, MQ, TR, DTH
-}kg;
-struct KG{
+} kg;
+struct KG {
   unsigned int gm : 1;
   unsigned int co : 1;
   unsigned int mq : 1;
@@ -20,7 +20,7 @@ struct KG{
   unsigned int dth: 1;
 };
 struct CGQ {
-  KG    kg      = {1,1,1,1,1};
+  KG    kg      = {1, 1, 1, 1, 1};
   float wsd[2]  = {0};
   int   sgp[2]  = {0};
   int   gm      = 0;
@@ -52,7 +52,7 @@ void setup() {
   pinMode(mq135, INPUT);
   pinMode(tr, INPUT);
   pinMode(dth11, INPUT);
-  
+
   if (!SGP.begin()) {
     //while (1);
   }
@@ -87,10 +87,10 @@ void dth() {      //dth11
   cgq.wsd[1] = (float)DHT11.humidity;
 }
 void sgp() {      //sgp30
-  const float ab = 216.7f * ((cgq.wsd[1] / 100.0f) 
-                  * 6.112f * exp((17.62f * cgq.wsd[0])
-                  / (243.12f + cgq.wsd[0])) 
-                  / (273.15f + cgq.wsd[0]));
+  const float ab = 216.7f * ((cgq.wsd[1] / 100.0f)
+                             * 6.112f * exp((17.62f * cgq.wsd[0])
+                                 / (243.12f + cgq.wsd[0]))
+                             / (273.15f + cgq.wsd[0]));
   const uint32_t absol = static_cast<uint32_t>(1000.0f * ab);
   SGP.setHumidity(absol);
   if (!SGP.IAQmeasure()) {
@@ -99,20 +99,20 @@ void sgp() {      //sgp30
   cgq.sgp[0] = SGP.eCO2;
   cgq.sgp[1] = SGP.TVOC;
 }
-void gkt(){
-  cgq.gm=analogRead(gm);
-  cgq.mq135=analogRead(mq135);
-  cgq.tr=analogRead(tr);
+void gkt() {
+  cgq.gm = analogRead(gm);
+  cgq.mq135 = analogRead(mq135);
+  cgq.tr = analogRead(tr);
 }
-void kaiguan(){
+void kaiguan() {
   digitalWrite(GM , cgq.kg.gm );
   digitalWrite(CO , cgq.kg.co );
   digitalWrite(MQ , cgq.kg.mq );
   digitalWrite(TR , cgq.kg.tr );
   digitalWrite(DTH, cgq.kg.dth);
-  if(!cgq.kg.dth){
+  if (!cgq.kg.dth) {
     pinMode(dth11, OUTPUT);
     digitalWrite(dth11, !cgq.kg.dth);
   }
-  
+
 }
