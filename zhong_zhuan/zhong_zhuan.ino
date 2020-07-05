@@ -5,6 +5,12 @@ struct ML {
   char ml[200] = {'\0'};
   struct ML *p = NULL;
 };
+struct XS {
+  char s[40];   //显示内容
+  int  t;       //显示时间
+  int  i;       //显示次数
+  XS*  p;
+};
 //========================================================================
 const int rs = 8, en = 9, d4 = 10, d5 = 11, d6 = 12, d7 = 13;
 SoftwareSerial esp(6, 7); //定义虚拟串口名为serial,rx为6号端口,tx为7号端口
@@ -12,6 +18,7 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 char a;
 struct ML *p1 = new struct ML, *p2 = p1;
+struct XS *xs = new struct XS;
 const char fg = ',';                     //分隔符
 char hc[200] = {0};
 int  hc_i    = 0;
@@ -38,7 +45,8 @@ int jk(const char *p1, const char *p2) {        //监控 监测Wifi串口 与 �
 }
 //========================================================================
 void cwtz() {         //错误处理
-
+XS* jiaru(char *s, int t, int i);
+void shanchu(XS* p);
 }
 //========================================================================
 void esp8266_csh() {        //ESP-01初始化             -------------          未完成
@@ -102,6 +110,7 @@ int mlcl(char* s, char* ml)           //命令处理-判断s的开头是否为ml
 //========================================================================
 void setup()
 {
+  xs->p = xs;
   esp.begin(9600); //初始化虚拟串口
   Serial.begin(9600); //初始化Arduino默认串口
   lcd.begin(16, 02);                     //初始化lcd
@@ -127,7 +136,7 @@ void loop()
   }
   while (p1->p) {
     Serial.println(p1->ml);
-    
+
     p = p1;
     p1 = p1->p;
     delete p;
@@ -138,4 +147,20 @@ void loop()
     Serial.print(a);
   }
 
+}
+XS* jiaru(char *s, int t, int i) {
+  XS *p = new XS;
+  p->p = xs->p;
+  xs->p = p;
+  for (int i = 0; i < 40; i++) p->s[i] = s[i];
+  p->t = t;
+  p->i = i;
+  return p;
+}
+void shanchu(XS* p) {
+  XS *ls = p;
+  while(ls->p != p) ls = ls->p;
+  ls->p = p->p;
+  sx = p->p;
+  delete p;
 }
