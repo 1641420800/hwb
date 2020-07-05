@@ -62,6 +62,8 @@ void dth();      //dth11
 void sgp();      //sgp30
 void kaiguan();  //开关
 int sjpd(FSJG *p);
+int mlcl(char* s, char* ml);
+int cin(char* p, int x);
 //=========================================================
 void setup() {
   Serial.begin(9600);
@@ -105,7 +107,11 @@ void loop() {
   if (sj.shi < 0) sj.shi = 0;
   if (sjpd(jg.gm)) {
     cgq.gm = analogRead(_gm);
-    Serial.println("gm");
+    Serial.print("gm:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.gm);
+    Serial.print("\r\n");
   }
   if (sjpd(jg.co)) {
     sgp();
@@ -125,7 +131,6 @@ void loop() {
   }
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
-    Serial.print(hc[hc_i]);
     if (hc[hc_i] == '\n' && hc_i != 0) {
       p2->p = new ML;
       for (int i = 0; i < hc_i; i++) p2->ml[i] = hc[i];
@@ -136,8 +141,52 @@ void loop() {
     hc_i++;
   }
   while (p1->p) {
-    if(mlcl(p1->ml,"")){
-      
+    if (mlcl(p1->ml, "kg:")) {
+      switch (cin(p1->ml, 0)) {
+        case 0:
+          cgq.kg.gm = cin(p1->ml, 1);
+          break;
+        case 1:
+          cgq.kg.co = cin(p1->ml, 1);
+          break;
+        case 2:
+          cgq.kg.mq = cin(p1->ml, 1);
+          break;
+        case 3:
+          cgq.kg.tr = cin(p1->ml, 1);
+          break;
+        case 4:
+          cgq.kg.dth = cin(p1->ml, 1);
+          break;
+      }
+    } else if (mlcl(p1->ml, "ds:")) {
+      switch (cin(p1->ml, 0)) {
+        case 0:
+          jg.gm[0].shi  = cin(p1->ml, 1);
+          jg.gm[0].fen  = cin(p1->ml, 2);
+          jg.gm[0].miao = cin(p1->ml, 3);
+          break;
+        case 1:
+          jg.co[0].shi  = cin(p1->ml, 1);
+          jg.co[0].fen  = cin(p1->ml, 2);
+          jg.co[0].miao = cin(p1->ml, 3);
+          break;
+        case 2:
+          jg.mq[0].shi  = cin(p1->ml, 1);
+          jg.mq[0].fen  = cin(p1->ml, 2);
+          jg.mq[0].miao = cin(p1->ml, 3);
+          break;
+        case 3:
+          jg.tr[0].shi  = cin(p1->ml, 1);
+          jg.tr[0].fen  = cin(p1->ml, 2);
+          jg.tr[0].miao = cin(p1->ml, 3);
+          break;
+        case 4:
+          jg.dth[0].shi = cin(p1->ml, 1);
+          jg.dth[0].fen = cin(p1->ml, 2);
+          jg.dth[0].miao= cin(p1->ml, 3);
+          break;
+      }
     }
 
     p = p1;
@@ -191,9 +240,9 @@ int sjpd(SJ *p) {
     p[1].shi  += p[0].shi;
     return 1;
   }
-  if(sj.miao < p[1].miao) p[1].miao -= 60;
-  if(sj.fen < p[1].fen)   p[1].fen  -= 60;
-  if(sj.shi < p[1].shi)   p[1].shi   = 0;
+  if (sj.miao < p[1].miao) p[1].miao -= 60;
+  if (sj.fen < p[1].fen)   p[1].fen  -= 60;
+  if (sj.shi < p[1].shi)   p[1].shi   = 0;
   return 0;
 }
 //=========================================================
