@@ -115,19 +115,39 @@ void loop() {
   }
   if (sjpd(jg.co)) {
     sgp();
-    Serial.println("co");
+    Serial.print("co:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.sgp[0]);
+    Serial.print(",");
+    Serial.print(cgq.sgp[1]);
+    Serial.print("\r\n");
   }
   if (sjpd(jg.mq)) {
     cgq.mq135 = analogRead(_mq135);
-    Serial.println("mq");
+    Serial.print("mq:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.mq135);
+    Serial.print("\r\n");
   }
   if (sjpd(jg.tr)) {
     cgq.tr = analogRead(_tr);
-    Serial.println("tr");
+    Serial.print("tr:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.tr);
+    Serial.print("\r\n");
   }
   if (sjpd(jg.dth)) {
     dth();
-    Serial.println("dth");
+    Serial.print("dth:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.wsd[0]);
+    Serial.print(",");
+    Serial.print(cgq.wsd[1]);
+    Serial.print("\r\n");
   }
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
