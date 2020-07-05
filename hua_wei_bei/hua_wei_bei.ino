@@ -191,6 +191,9 @@ int sjpd(SJ *p) {
     p[1].shi  += p[0].shi;
     return 1;
   }
+  if(sj.miao < p[1].miao) p[1].miao -= 60;
+  if(sj.fen < p[1].fen)   p[1].fen  -= 60;
+  if(sj.shi < p[1].shi)   p[1].shi   = 0;
   return 0;
 }
 //=========================================================
