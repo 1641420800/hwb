@@ -111,8 +111,8 @@ int mlcl(char* s, char* ml)           //命令处理-判断s的开头是否为ml
 void setup()
 {
   xs->p = xs;
-  esp.begin(9600); //初始化虚拟串口
-  Serial.begin(9600); //初始化Arduino默认串口
+  esp.begin(9600);                       //初始化虚拟串口
+  Serial.begin(9600);                    //初始化Arduino默认串口
   lcd.begin(16, 02);                     //初始化lcd
   lcd.clear();                           //清空显示的内容
   lcd.setCursor(13, 0);                  //将光标移至初始位置
@@ -148,6 +148,7 @@ void loop()
   }
 
 }
+//========================================================================
 XS* jiaru(char *s, int t, int i) {
   XS *p = new XS;
   p->p = xs->p;
@@ -157,6 +158,7 @@ XS* jiaru(char *s, int t, int i) {
   p->i = i;
   return p;
 }
+//========================================================================
 void shanchu(XS* p) {
   XS *ls = p;
   while(ls->p != p) ls = ls->p;
