@@ -77,13 +77,14 @@ void setup() {
   digitalWrite(TR, HIGH);
   pinMode(DTH, OUTPUT);
   digitalWrite(DTH, HIGH);
+  pinMode(13,HIGH);
   pinMode(_gm, INPUT);
   pinMode(_mq135, INPUT);
   pinMode(_tr, INPUT);
   pinMode(_dth11, INPUT);
 
   if (!SGP.begin()) {
-    //while (1);
+    while (1);
   }
   SGP.setIAQBaseline(0x8501, 0x8476);
 }
@@ -105,7 +106,8 @@ void loop() {
   }
   if (t > t1) t = 0;
   if (sj.shi < 0) sj.shi = 0;
-  if (sjpd(jg.gm)) {
+  digitalWrite(13,sj.miao%2);
+  if (sjpd(jg.gm) && cgq.kg.gm) {
     cgq.gm = analogRead(_gm);
     Serial.print("gm:");
     Serial.print(_bianhao);
@@ -113,7 +115,7 @@ void loop() {
     Serial.print(cgq.gm);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.co)) {
+  if (sjpd(jg.co) && cgq.kg.co) {
     sgp();
     Serial.print("co:");
     Serial.print(_bianhao);
@@ -123,7 +125,7 @@ void loop() {
     Serial.print(cgq.sgp[1]);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.mq)) {
+  if (sjpd(jg.mq) && cgq.kg.mq) {
     cgq.mq135 = analogRead(_mq135);
     Serial.print("mq:");
     Serial.print(_bianhao);
@@ -131,7 +133,7 @@ void loop() {
     Serial.print(cgq.mq135);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.tr)) {
+  if (sjpd(jg.tr) && cgq.kg.tr) {
     cgq.tr = analogRead(_tr);
     Serial.print("tr:");
     Serial.print(_bianhao);
@@ -139,7 +141,7 @@ void loop() {
     Serial.print(cgq.tr);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.dth)) {
+  if (sjpd(jg.dth) && cgq.kg.dth) {
     dth();
     Serial.print("dth:");
     Serial.print(_bianhao);
