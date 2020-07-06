@@ -83,10 +83,6 @@ void setup() {
   pinMode(_tr, INPUT);
   pinMode(_dth11, INPUT);
 
-  if (!SGP.begin()) {
-    while (1);
-  }
-  SGP.setIAQBaseline(0x8501, 0x8476);
 }
 //=========================================================
 void loop() {
