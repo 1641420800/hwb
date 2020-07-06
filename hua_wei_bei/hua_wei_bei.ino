@@ -3,15 +3,13 @@
 //=========================================================
 #define _bianhao  "1"
 #define _gm       A6
-#define _co2_scl  A5
-#define _co2_sda  A4
 #define _mq135    A3
 #define _tr       A2
 #define _dth11    A1
 //=========================================================
 enum
 {
-  GM = 2, CO, MQ, TR, DTH
+  GM = 2, MQ=4, TR, DTH
 } kg;
 //=========================================================
 struct ML {
@@ -20,15 +18,13 @@ struct ML {
 };
 struct KG {
   unsigned int gm : 1;
-  unsigned int co : 1;
   unsigned int mq : 1;
   unsigned int tr : 1;
   unsigned int dth: 1;
 };
 struct CGQ {
-  KG    kg      = {1, 1, 1, 1, 1};
+  KG    kg      = {1, 1, 1, 1};
   float wsd[2]  = {0};
-  int   sgp[2]  = {0};
   int   gm      = 0;
   int   mq135   = 0;
   int   tr      = 0;
@@ -40,7 +36,6 @@ struct SJ {
 };
 struct FSJG { //时  分  秒
   SJ gm[2]  = {0 , 0 , 1};    //光敏传感器
-  SJ co[2]  = {0 , 0 , 20};   //CO2传感器
   SJ mq[2]  = {0 , 0 , 20};   //MQ135
   SJ tr[2]  = {0 , 0 , 10};   //土壤湿度
   SJ dth[2] = {0 , 0 , 5};    //温湿度
@@ -69,8 +64,6 @@ void setup() {
   Serial.begin(9600);
   pinMode(GM, OUTPUT);
   digitalWrite(GM, HIGH);
-  pinMode(CO, OUTPUT);
-  digitalWrite(CO, HIGH);
   pinMode(MQ, OUTPUT);
   digitalWrite(MQ, HIGH);
   pinMode(TR, OUTPUT);
@@ -81,7 +74,7 @@ void setup() {
   pinMode(_gm, INPUT);
   pinMode(_mq135, INPUT);
   pinMode(_tr, INPUT);
-  pinMode(_dth11, INPUT);
+  pinMode(_dth11, INPUT); //
 
 }
 //=========================================================
@@ -109,16 +102,6 @@ void loop() {
     Serial.print(_bianhao);
     Serial.print(",");
     Serial.print(cgq.gm);
-    Serial.print("\r\n");
-  }
-  if (sjpd(jg.co) && cgq.kg.co) {
-    sgp();
-    Serial.print("co:");
-    Serial.print(_bianhao);
-    Serial.print(",");
-    Serial.print(cgq.sgp[0]);
-    Serial.print(",");
-    Serial.print(cgq.sgp[1]);
     Serial.print("\r\n");
   }
   if (sjpd(jg.mq) && cgq.kg.mq) {
@@ -163,9 +146,6 @@ void loop() {
         case 0:
           cgq.kg.gm = cin(p1->ml, 1);
           break;
-        case 1:
-          cgq.kg.co = cin(p1->ml, 1);
-          break;
         case 2:
           cgq.kg.mq = cin(p1->ml, 1);
           break;
@@ -182,11 +162,6 @@ void loop() {
           jg.gm[0].shi  = cin(p1->ml, 1);
           jg.gm[0].fen  = cin(p1->ml, 2);
           jg.gm[0].miao = cin(p1->ml, 3);
-          break;
-        case 1:
-          jg.co[0].shi  = cin(p1->ml, 1);
-          jg.co[0].fen  = cin(p1->ml, 2);
-          jg.co[0].miao = cin(p1->ml, 3);
           break;
         case 2:
           jg.mq[0].shi  = cin(p1->ml, 1);
@@ -220,30 +195,15 @@ void dth() {      //dth11
   cgq.wsd[1] = (float)DHT11.humidity;
 }
 //=========================================================
-void sgp() {      //sgp30
-  const float ab = 216.7f * ((cgq.wsd[1] / 100.0f)
-                             * 6.112f * exp((17.62f * cgq.wsd[0])
-                                 / (243.12f + cgq.wsd[0]))
-                             / (273.15f + cgq.wsd[0]));
-  const uint32_t absol = static_cast<uint32_t>(1000.0f * ab);
-  SGP.setHumidity(absol);
-  if (!SGP.IAQmeasure()) {
-    return;
-  }
-  cgq.sgp[0] = SGP.eCO2;
-  cgq.sgp[1] = SGP.TVOC;
-}
-//=========================================================
 void kaiguan() {
   digitalWrite(GM , cgq.kg.gm );
-  digitalWrite(CO , cgq.kg.co );
   digitalWrite(MQ , cgq.kg.mq );
   digitalWrite(TR , cgq.kg.tr );
   digitalWrite(DTH, cgq.kg.dth);
-  if (!cgq.kg.dth) {
-    pinMode(_dth11, OUTPUT);
-    digitalWrite(_dth11, !cgq.kg.dth);
-  }
+  //if (!cgq.kg.dth) {        //
+  //  pinMode(_dth11, OUTPUT);
+  //  digitalWrite(_dth11, !cgq.kg.dth);
+  //}
 }
 //=========================================================
 int sjpd(SJ *p) {
