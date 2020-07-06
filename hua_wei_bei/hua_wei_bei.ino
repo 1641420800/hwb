@@ -1,5 +1,4 @@
 #include <dht11.h>          //包含dht11.h
-#include "Adafruit_SGP30.h"
 //=========================================================
 #define _bianhao  "1"
 #define _gm       A6
@@ -51,7 +50,6 @@ int  hc_i    = 0;
 unsigned int t = 0;
 //=========================================================
 dht11 DHT11;                //初始化dht11类
-Adafruit_SGP30 SGP;
 //=========================================================
 void dth();      //dth11
 void sgp();      //sgp30
@@ -74,7 +72,7 @@ void setup() {
   pinMode(_gm, INPUT);
   pinMode(_mq135, INPUT);
   pinMode(_tr, INPUT);
-  pinMode(_dth11, INPUT); //
+  pinMode(_dth11, INPUT);
 
 }
 //=========================================================
@@ -95,7 +93,7 @@ void loop() {
   }
   if (t > t1) t = 0;
   if (sj.shi < 0) sj.shi = 0;
-  digitalWrite(13,sj.miao%2);
+  digitalWrite(13,!(sj.miao%10));
   if (sjpd(jg.gm) && cgq.kg.gm) {
     cgq.gm = analogRead(_gm);
     Serial.print("gm:");
@@ -200,10 +198,6 @@ void kaiguan() {
   digitalWrite(MQ , cgq.kg.mq );
   digitalWrite(TR , cgq.kg.tr );
   digitalWrite(DTH, cgq.kg.dth);
-  //if (!cgq.kg.dth) {        //
-  //  pinMode(_dth11, OUTPUT);
-  //  digitalWrite(_dth11, !cgq.kg.dth);
-  //}
 }
 //=========================================================
 int sjpd(SJ *p) {
