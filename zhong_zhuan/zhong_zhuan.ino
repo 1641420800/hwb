@@ -216,7 +216,7 @@ void loop()
       lcd.print(s);
       lcd.print("                ");
     }
-    esp.print(p1->ml);
+    esp.println(p1->ml);
     p = p1;
     p1 = p1->p;
     delete p;
