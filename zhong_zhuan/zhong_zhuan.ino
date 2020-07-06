@@ -139,7 +139,7 @@ int mlcl(char* s, const char* ml)          //命令处理-判断s的开头是否
 //========================================================================
 void setup()
 {
-  char s[40] = "chushihua";
+  char s[40] = "Transfer device";
   int i;
   xs->p = xs;
   esp.begin(9600);                       //初始化虚拟串口
