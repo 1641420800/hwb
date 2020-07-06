@@ -142,8 +142,8 @@ void setup()
   char s[40] = "Transfer device";
   int i;
   xs->p = xs;
-  esp.begin(9600);                       //初始化虚拟串口
-  Serial.begin(9600);                    //初始化Arduino默认串口
+  esp.begin(115200);                     //初始化虚拟串口
+  Serial.begin(115200);                  //初始化Arduino默认串口
   lcd.begin(16, 02);                     //初始化lcd
   lcd.clear();                           //清空显示的内容
   lcd.setCursor(13, 0);                  //将光标移至初始位置
