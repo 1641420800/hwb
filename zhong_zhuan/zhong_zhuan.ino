@@ -181,9 +181,9 @@ void loop()
     if (ls->i == 0) shanchu(ls);
     if (xs->i != -1)xs->i--;
     lssj = sj;
-    lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(xs->s);
+    lcd.print("                ");
   }
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
@@ -209,6 +209,12 @@ void loop()
     if (mlcl(p1->ml, "lcdjr:")) {
       cch(p1->ml, s, 2);
       jiaru(s, cin(p1->ml, 0), cin(p1->ml, 1));
+    }
+    if (mlcl(p1->ml, "lcd:")) {
+      cch(p1->ml, s, 0);
+      lcd.setCursor(0, 1);
+      lcd.print(s);
+      lcd.print("                ");
     }
 
     p = p1;
