@@ -8,7 +8,7 @@
 //=========================================================
 enum
 {
-  GM = 2, MQ=4, TR, DTH
+  GM = 2, MQ = 4, TR, DTH
 } kg;
 //=========================================================
 struct ML {
@@ -52,7 +52,6 @@ unsigned int t = 0;
 dht11 DHT11;                //初始化dht11类
 //=========================================================
 void dth();      //dth11
-void sgp();      //sgp30
 void kaiguan();  //开关
 int sjpd(FSJG *p);
 int mlcl(char* s, char* ml);
@@ -68,7 +67,7 @@ void setup() {
   digitalWrite(TR, HIGH);
   pinMode(DTH, OUTPUT);
   digitalWrite(DTH, HIGH);
-  pinMode(13,HIGH);
+  pinMode(13, HIGH);
   pinMode(_gm, INPUT);
   pinMode(_mq135, INPUT);
   pinMode(_tr, INPUT);
@@ -93,7 +92,7 @@ void loop() {
   }
   if (t > t1) t = 0;
   if (sj.shi < 0) sj.shi = 0;
-  digitalWrite(13,!(sj.miao%10));
+  digitalWrite(13, !(sj.miao % 10));
   if (sjpd(jg.gm) && cgq.kg.gm) {
     cgq.gm = analogRead(_gm);
     Serial.print("gm:");
@@ -144,13 +143,13 @@ void loop() {
         case 0:
           cgq.kg.gm = cin(p1->ml, 1);
           break;
-        case 2:
+        case 1:
           cgq.kg.mq = cin(p1->ml, 1);
           break;
-        case 3:
+        case 2:
           cgq.kg.tr = cin(p1->ml, 1);
           break;
-        case 4:
+        case 3:
           cgq.kg.dth = cin(p1->ml, 1);
           break;
       }
@@ -161,20 +160,20 @@ void loop() {
           jg.gm[0].fen  = cin(p1->ml, 2);
           jg.gm[0].miao = cin(p1->ml, 3);
           break;
-        case 2:
+        case 1:
           jg.mq[0].shi  = cin(p1->ml, 1);
           jg.mq[0].fen  = cin(p1->ml, 2);
           jg.mq[0].miao = cin(p1->ml, 3);
           break;
-        case 3:
+        case 2:
           jg.tr[0].shi  = cin(p1->ml, 1);
           jg.tr[0].fen  = cin(p1->ml, 2);
           jg.tr[0].miao = cin(p1->ml, 3);
           break;
-        case 4:
+        case 3:
           jg.dth[0].shi = cin(p1->ml, 1);
           jg.dth[0].fen = cin(p1->ml, 2);
-          jg.dth[0].miao= cin(p1->ml, 3);
+          jg.dth[0].miao = cin(p1->ml, 3);
           break;
       }
     }
