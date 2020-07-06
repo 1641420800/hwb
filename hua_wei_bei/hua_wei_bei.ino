@@ -54,7 +54,7 @@ dht11 DHT11;                //初始化dht11类
 void dth();      //dth11
 void kaiguan();  //开关
 int sjpd(FSJG *p);
-int mlcl(char* s, char* ml);
+int mlcl(char* s, const char* ml);
 int cin(char* p, int x);
 //=========================================================
 void setup() {
@@ -237,9 +237,9 @@ int cin(char* p, int x) //字符串转整数-p中第x个数字,数字间用","(�
   return s * fh;
 }
 //========================================================================
-int mlcl(char* s, char* ml)           //命令处理-判断s的开头是否为ml 是-将s中ml删掉
+int mlcl(char* s, const char* ml)           //命令处理-判断s的开头是否为ml 是-将s中ml删掉
 {
-  char* p1 = s, * p2 = ml;
+  const char* p1 = s, * p2 = ml;
   while (*p1 == *p2) {
     p1++, p2++;
     if (*p1 == '\0') break;
