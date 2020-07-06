@@ -139,6 +139,8 @@ int mlcl(char* s, const char* ml)          //命令处理-判断s的开头是否
 //========================================================================
 void setup()
 {
+  char s[40] = "chushihua";
+  int i;
   xs->p = xs;
   esp.begin(9600);                       //初始化虚拟串口
   Serial.begin(9600);                    //初始化Arduino默认串口
@@ -146,6 +148,9 @@ void setup()
   lcd.clear();                           //清空显示的内容
   lcd.setCursor(13, 0);                  //将光标移至初始位置
   lcd.print("Yxg");                      //显示初始内容
+  for (i = 0; i < 40; i++) xs -> s[i] = s[i];
+  xs -> i = -1;
+  xs -> t = 5;
 }
 //========================================================================
 void loop()
@@ -173,8 +178,8 @@ void loop()
   if (xs->t <= sjjg(sj)) {
     ls = xs;
     xs = xs->p;
-    ls->i--;
-    if (!ls->i) shanchu(ls);
+    if (ls->i == 0) shanchu(ls);
+    if (xs->i != -1)xs->i--;
     lssj = sj;
     lcd.clear();
     lcd.setCursor(0, 0);
