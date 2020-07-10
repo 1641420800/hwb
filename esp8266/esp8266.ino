@@ -36,17 +36,16 @@ unsigned long lastMs = 0;
 unsigned int WAIT_MS = 2000;
 
 struct ML *p1 = new struct ML, *p2 = p1;    //队列出入口
-char ml[200] = {'\0'};                   //通信数据缓存数组
-int ml_i = 0;                          //缓存标识
+char ml[200] = {'\0'};                      //通信数据缓存数组
+int ml_i = 0;                               //缓存标识
 
 WiFiClient   espClient;
 PubSubClient mqttClient(espClient);
+
 void init_wifi(const char *ssid, const char *password) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)  {
-    delay(500);
-  }
+  while (WiFi.status() != WL_CONNECTED) delay(500);
   Serial.println("Wifi OK\r\n");
 }
 void mqtt_callback(char *topic, byte *payload, unsigned int length) {
@@ -89,7 +88,6 @@ void mqtt_interval_post() {
   char jsonBuf[1024];
   sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%d,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%d,\"yudi\":%d}", 77, 1, 33, 33, 22, 11, 11);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
-  Serial.println(jsonBuf);
   mqttClient.publish(ALINK_TOPIC_PROP_POST, jsonBuf);
 }
 int cin(char* p, int x) //字符串转整数-p中第x个数字,数字间用","(分隔符)隔开
