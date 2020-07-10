@@ -1,19 +1,17 @@
 #include <ESP8266WiFi.h>
-#include <PubSubClient.h>
 #include <ArduinoJson.h>
-
 #include "aliyun_mqtt.h"
 
 #define SENSOR_PIN 13
 
-#define WIFI_SSID        "1641420800"//替换自己的WIFI
-#define WIFI_PASSWD      "15612774227"//替换自己的WIFI
+#define WIFI_SSID        "1641420800"         //替换自己的WIFI
+#define WIFI_PASSWD      "15612774227"        //替换自己的WIFI
 
-#define PRODUCT_KEY      "a15FrrRNdXl" //替换自己的PRODUCT_KEY
-#define DEVICE_NAME      "ceshi" //替换自己的DEVICE_NAME
-#define DEVICE_SECRET    "50f4c59aa6025119f20031e989dfbb93"//替换自己的DEVICE_SECRET
+#define PRODUCT_KEY      "a15FrrRNdXl"        //替换自己的PRODUCT_KEY
+#define DEVICE_NAME      "ceshi"              //替换自己的DEVICE_NAME
+#define DEVICE_SECRET    "50f4c59aa6025119f20031e989dfbb93"       //替换自己的DEVICE_SECRET
 
-#define DEV_VERSION       "S-TH-WIFI-v1.0-20190220"        //固件版本信息
+#define DEV_VERSION       "S-TH-WIFI-v1.0-20200710"               //固件版本信息
 
 #define ALINK_BODY_FORMAT         "{\"id\":\"111\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post"
