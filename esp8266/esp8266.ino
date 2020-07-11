@@ -4,8 +4,8 @@
 
 #define SENSOR_PIN 13
 
-#define WIFI_SSID        "1641420800"         //替换自己的WIFI
-#define WIFI_PASSWD      "15612774227"        //替换自己的WIFI
+#define WIFI_SSID        "Yxg-164"         //替换自己的WIFI
+#define WIFI_PASSWD      "1641420800"        //替换自己的WIFI
 
 #define PRODUCT_KEY      "a15FrrRNdXl"        //替换自己的PRODUCT_KEY
 #define DEVICE_NAME      "ceshi"              //替换自己的DEVICE_NAME
@@ -25,9 +25,16 @@ struct ML {
   char ml[200] = {'\0'};
   struct ML *p = NULL;
 };
+
 struct SHUJU{
-  
-};
+  int bianhao=0;
+  int gmsj=0;
+  int hysj=0;
+  float mqsj=0;
+  float dthsj[2][10]={{0},{0}};
+  float ydsj=0;
+  float trsj=0;
+}shuju;
 
 int LED_PIN = 2;
 int LED = 0;
@@ -41,6 +48,8 @@ int ml_i = 0;                               //缓存标识
 
 WiFiClient   espClient;
 PubSubClient mqttClient(espClient);
+
+int cch(char* s, int j, char* p2, int n, char a = ',');
 
 void init_wifi(const char *ssid, const char *password) {
   WiFi.mode(WIFI_STA);
@@ -86,11 +95,11 @@ void mqtt_check_connect() {
 void mqtt_interval_post() {
   char param[512];
   char jsonBuf[1024];
-  sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%d,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%d,\"yudi\":%d}", 77, 1, 33, 33, 22, 11, 11);
+  sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%d,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%d,\"yudi\":%d}", 99, 2, 55, 44, 222, 111, 141);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
   mqttClient.publish(ALINK_TOPIC_PROP_POST, jsonBuf);
 }
-int cin(char* p, int x) //字符串转整数-p中第x个数字,数字间用","(分隔符)隔开
+int cin(char* p, int x)        //字符串转整数-p中第x个数字,数字间用","(分隔符)隔开
 {
   int s = 0, fh = 1, i;
   for (i = 0; i < 200; i++) {
@@ -109,6 +118,27 @@ int cin(char* p, int x) //字符串转整数-p中第x个数字,数字间用","(�
     p++;
   }
   return s * fh;
+}
+int cch(char* s, int j, char* p2, int n, char a) {
+    char* p1 = s;
+    int bz = 0, i, k = 0;
+    while (n && j) {
+        if (*p1 == a) n--;
+        p1++;
+        j--;
+    }
+    for (i = 0; i < j; i++) {
+        if (p1[i] == '\"') bz++;
+        else {
+            p2[k] = p1[i];
+            k++;
+        }
+        if (bz == 2) {
+            p2[k] = '\0';
+            return i - 1;
+        }
+    }
+    return -1;
 }
 int mlcl(char* s, char* ml)           //命令处理-判断s的开头是否为ml 是-将s中ml删掉
 {
@@ -143,8 +173,33 @@ void loop() {
     ml_i++;
   }
   while (p1->p) {
-    if (mlcl(p1->ml, "gz")) {
 
+    if (mlcl(p1->ml, "gm")) {
+      shuju.bianhao=cin(p1->ml,0);
+      chh(p1->ml,200,shuju.gmsj,1);
+    }
+    if (mlcl(p1->ml, "hy")) {
+      shuju.bianhao=cin(p1->ml,0);
+      chh(p1->ml,200,shuju.hysj,1);
+    }
+    if (mlcl(p1->ml, "mq")) {
+      shuju.bianhao=cin(p1->ml,0);
+      chh(p1->ml,200,shuju.mqsj,1);
+    }
+    if (mlcl(p1->ml, "dth")) {
+      shuju.bianhao=cin(p1->ml,0);
+      chh(p1->ml,200,shuju.dthsj[0][0],1);
+      chh(p1->ml,200,shuju.dthsj[0][0],1);
+      chh(p1->ml,200,shuju.dthsj[1][0],2);
+      
+    }
+    if (mlcl(p1->ml, "yd")) {
+      shuju.bianhao=cin(p1->ml,0);
+      chh(p1->ml,200,shuju.ydsj,1);
+    }
+    if (mlcl(p1->ml, "tr")) {
+      shuju.bianhao=cin(p1->ml,0);
+      chh(p1->ml,200,shuju.trsj,1);
     }
 
     p = p1;
