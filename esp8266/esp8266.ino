@@ -1,18 +1,18 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoJson.h>
 #include "aliyun_mqtt.h"
-
+//=======================================================================================================
 #define SENSOR_PIN 13
-
+//=======================================================================================================
 #define WIFI_SSID        "Yxg-164"         //替换自己的WIFI
 #define WIFI_PASSWD      "1641420800"        //替换自己的WIFI
-
+//=======================================================================================================
 #define PRODUCT_KEY      "a15FrrRNdXl"        //替换自己的PRODUCT_KEY
 #define DEVICE_NAME      "ceshi"              //替换自己的DEVICE_NAME
 #define DEVICE_SECRET    "50f4c59aa6025119f20031e989dfbb93"       //替换自己的DEVICE_SECRET
-
+//=======================================================================================================
 #define DEV_VERSION       "S-TH-WIFI-v1.0-20200710"               //固件版本信息
-
+//=======================================================================================================
 #define ALINK_BODY_FORMAT         "{\"id\":\"111\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post"
 #define ALINK_TOPIC_PROP_POSTRSP  "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post_reply"
@@ -20,22 +20,21 @@
 #define ALINK_METHOD_PROP_POST    "thing.event.property.post"
 #define ALINK_TOPIC_DEV_INFO      "/ota/device/inform/" PRODUCT_KEY "/" DEVICE_NAME ""
 #define ALINK_VERSION_FROMA       "{\"id\": 111,\"params\": {\"version\": \"%s\"}}"
-
+//=======================================================================================================
 struct ML {
   char ml[200] = {'\0'};
   struct ML *p = NULL;
 };
-
-struct SHUJU{
-  int bianhao=0;
-  int gmsj=0;
-  int hysj=0;
-  float mqsj=0;
-  float dthsj[2][10]={{0},{0}};
-  float ydsj=0;
-  float trsj=0;
-}shuju;
-
+struct SHUJU {
+  int bianhao = 0;
+  int gmsj = 0;
+  int hysj = 0;
+  float mqsj = 0;
+  float dthsj[2][10] = {{0}, {0}};
+  float ydsj = 0;
+  float trsj = 0;
+};
+//=======================================================================================================
 int LED_PIN = 2;
 int LED = 0;
 const char fg = ',';                     //分隔符
@@ -45,18 +44,90 @@ unsigned int WAIT_MS = 2000;
 struct ML *p1 = new struct ML, *p2 = p1;    //队列出入口
 char ml[200] = {'\0'};                      //通信数据缓存数组
 int ml_i = 0;                               //缓存标识
-
+SHUJU shuju;
 WiFiClient   espClient;
 PubSubClient mqttClient(espClient);
-
+//=======================================================================================================
 int cch(char* s, int j, char* p2, int n, char a = ',');
+void init_wifi(const char *ssid, const char *password);
+void mqtt_callback(char *topic, byte *payload, unsigned int length);
+void mqtt_version_post();
+void mqtt_check_connect();
+void mqtt_interval_post();
+int cin(char* p, int x);
+int mlcl(char* s, char* ml);
 
+//=======================================================================================================
+void setup() {
+  pinMode(2, OUTPUT);
+  Serial.begin(115200);
+  init_wifi(WIFI_SSID, WIFI_PASSWD);
+  mqttClient.setCallback(mqtt_callback);
+}
+void loop() {
+  int i;
+  struct ML *p = NULL;
+  char lss[200] = { 0 };
+  while (Serial.available()) {                          //处理串口
+    ml[ml_i] = char(Serial.read());
+    if (ml[ml_i] == '$' && ml_i != 0) {
+      p2->p = new ML;
+      for (i = 0; i < ml_i; i++) p2->ml[i] = ml[i];
+      p2 = p2->p;
+      ml_i = 0;
+      ml[ml_i] = '$';
+    }
+    ml_i++;
+  }
+  while (p1->p) {
+
+    if (mlcl(p1->ml, "gm")) {
+      shuju.bianhao = cin(p1->ml, 0);
+      cch(p1->ml, 200, lss, 1);
+    }
+    if (mlcl(p1->ml, "hy")) {
+      shuju.bianhao = cin(p1->ml, 0);
+      cch(p1->ml, 200, lss, 1);
+    }
+    if (mlcl(p1->ml, "mq")) {
+      shuju.bianhao = cin(p1->ml, 0);
+      cch(p1->ml, 200, lss, 1);
+    }
+    if (mlcl(p1->ml, "dth")) {
+      shuju.bianhao = cin(p1->ml, 0);
+      cch(p1->ml, 200, lss, 1);
+      cch(p1->ml, 200, lss, 2);
+    }
+    if (mlcl(p1->ml, "yd")) {
+      shuju.bianhao = cin(p1->ml, 0);
+      cch(p1->ml, 200, lss, 1);
+    }
+    if (mlcl(p1->ml, "tr")) {
+      shuju.bianhao = cin(p1->ml, 0);
+      cch(p1->ml, 200, lss, 1);
+    }
+
+    p = p1;
+    p1 = p1->p;
+    delete p;
+  }
+  if (millis() - lastMs >= 20000)  {
+    lastMs = millis();
+    mqtt_check_connect();
+    mqtt_interval_post();     //上交数据
+    digitalWrite(LED_PIN, LED = !LED);
+  }
+  mqttClient.loop();
+  delay(WAIT_MS); // ms
+}
+//======================================================================================================= WIFI连接
 void init_wifi(const char *ssid, const char *password) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) delay(500);
   Serial.println("Wifi OK\r\n");
 }
+//======================================================================================================= 阿里云物联网支持部分
 void mqtt_callback(char *topic, byte *payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -99,6 +170,19 @@ void mqtt_interval_post() {
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
   mqttClient.publish(ALINK_TOPIC_PROP_POST, jsonBuf);
 }
+//======================================================================================================= 串口通信支持部分
+int mlcl(char* s, char* ml)           //命令处理-判断s的开头是否为ml 是-将s中ml删掉
+{
+  char* p1 = s, * p2 = ml;
+  while (*p1 == *p2) {
+    p1++, p2++;
+    if (*p1 == '\0') break;
+  }
+  if (*p2 != '\0') return 0;
+  else if (*p1 == '\0') return 1;
+  else for (int i = 0; p1[i - 1] != '\0'; i++) s[i] = p1[i];
+  return 2;
+}
 int cin(char* p, int x)        //字符串转整数-p中第x个数字,数字间用","(分隔符)隔开
 {
   int s = 0, fh = 1, i;
@@ -120,98 +204,26 @@ int cin(char* p, int x)        //字符串转整数-p中第x个数字,数字间�
   return s * fh;
 }
 int cch(char* s, int j, char* p2, int n, char a) {
-    char* p1 = s;
-    int bz = 0, i, k = 0;
-    while (n && j) {
-        if (*p1 == a) n--;
-        p1++;
-        j--;
+  char* p1 = s;
+  int bz = 0, i, k = 0;
+  while (n && j) {
+    if (*p1 == a) n--;
+    p1++;
+    j--;
+  }
+  for (i = 0; i < j; i++) {
+    if (p1[i] == '\"') bz++;
+    else {
+      p2[k] = p1[i];
+      k++;
     }
-    for (i = 0; i < j; i++) {
-        if (p1[i] == '\"') bz++;
-        else {
-            p2[k] = p1[i];
-            k++;
-        }
-        if (bz == 2) {
-            p2[k] = '\0';
-            return i - 1;
-        }
+    if (bz == 2) {
+      p2[k] = '\0';
+      return i - 1;
     }
-    return -1;
+  }
+  return -1;
 }
-int mlcl(char* s, char* ml)           //命令处理-判断s的开头是否为ml 是-将s中ml删掉
-{
-  char* p1 = s, * p2 = ml;
-  while (*p1 == *p2) {
-    p1++, p2++;
-    if (*p1 == '\0') break;
-  }
-  if (*p2 != '\0') return 0;
-  else if (*p1 == '\0') return 1;
-  else for (int i = 0; p1[i - 1] != '\0'; i++) s[i] = p1[i];
-  return 2;
-}
-void setup() {
-  pinMode(2, OUTPUT);
-  Serial.begin(115200);
-  init_wifi(WIFI_SSID, WIFI_PASSWD);
-  mqttClient.setCallback(mqtt_callback);
-}
-void loop() {
-  int i;
-  struct ML *p = NULL;
-  while (Serial.available()) {                          //处理串口
-    ml[ml_i] = char(Serial.read());
-    if (ml[ml_i] == '$' && ml_i != 0) {
-      p2->p = new ML;
-      for (i = 0; i < ml_i; i++) p2->ml[i] = ml[i];
-      p2 = p2->p;
-      ml_i = 0;
-      ml[ml_i] = '$';
-    }
-    ml_i++;
-  }
-  while (p1->p) {
-
-    if (mlcl(p1->ml, "gm")) {
-      shuju.bianhao=cin(p1->ml,0);
-      chh(p1->ml,200,shuju.gmsj,1);
-    }
-    if (mlcl(p1->ml, "hy")) {
-      shuju.bianhao=cin(p1->ml,0);
-      chh(p1->ml,200,shuju.hysj,1);
-    }
-    if (mlcl(p1->ml, "mq")) {
-      shuju.bianhao=cin(p1->ml,0);
-      chh(p1->ml,200,shuju.mqsj,1);
-    }
-    if (mlcl(p1->ml, "dth")) {
-      shuju.bianhao=cin(p1->ml,0);
-      chh(p1->ml,200,shuju.dthsj[0][0],1);
-      chh(p1->ml,200,shuju.dthsj[0][0],1);
-      chh(p1->ml,200,shuju.dthsj[1][0],2);
-      
-    }
-    if (mlcl(p1->ml, "yd")) {
-      shuju.bianhao=cin(p1->ml,0);
-      chh(p1->ml,200,shuju.ydsj,1);
-    }
-    if (mlcl(p1->ml, "tr")) {
-      shuju.bianhao=cin(p1->ml,0);
-      chh(p1->ml,200,shuju.trsj,1);
-    }
-
-    p = p1;
-    p1 = p1->p;
-    delete p;
-  }
-  if (millis() - lastMs >= 20000)  {
-    lastMs = millis();
-    mqtt_check_connect();
-    mqtt_interval_post();     //上交数据
-    digitalWrite(LED_PIN, LED = !LED);
-  }
-  mqttClient.loop();
-  delay(WAIT_MS); // ms
+double cdo(char *p,int n){
+  
 }
