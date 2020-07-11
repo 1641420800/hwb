@@ -26,25 +26,29 @@ struct ML {
   struct ML *p = NULL;
 };
 struct SHUJU {
-  int bianhao = 0;
-  int gmsj = 0;
-  int hysj = 0;
-  float mqsj = 0;
-  float dthsj[2][10] = {{0}, {0}};
-  float ydsj = 0;
-  float trsj = 0;
+  int   gm      = 0;
+  int   hy      = 0;
+  float mq      = 0;
+  float dth[2]  = {0};
+  float yd      = 0;
+  float tr      = 0;
+};
+struct BIAO{
+  int bh = 0;
+  struct SHUJU *p = NULL;
 };
 //=======================================================================================================
-int LED_PIN = 2;
+const int LED_PIN = 2;
 int LED = 0;
 const char fg = ',';                     //分隔符
 unsigned long lastMs = 0;
 unsigned int WAIT_MS = 2000;
 
 struct ML *p1 = new struct ML, *p2 = p1;    //队列出入口
+struct BIAO biao[100];
+struct SHUJU pjsj;
 char ml[200] = {'\0'};                      //通信数据缓存数组
 int ml_i = 0;                               //缓存标识
-SHUJU shuju;
 WiFiClient   espClient;
 PubSubClient mqttClient(espClient);
 //=======================================================================================================
@@ -80,8 +84,7 @@ void loop() {
     ml_i++;
   }
   while (p1->p) {
-
-    if (mlcl(p1->ml, "gm")) {
+/*    if (mlcl(p1->ml, "gm")) {
       shuju.bianhao = cin(p1->ml, 0);
       cch(p1->ml, 200, lss, 1);
     }
@@ -107,6 +110,7 @@ void loop() {
       cch(p1->ml, 200, lss, 1);
     }
 
+*/
     p = p1;
     p1 = p1->p;
     delete p;
@@ -224,6 +228,18 @@ int cch(char* s, int j, char* p2, int n, char a) {
   }
   return -1;
 }
-double cdo(char *p,int n){
-  
+double cdo(char* p, int n) {
+    int a = cin(p, n), i;
+    for (i = 0; i < 200; i++) {
+        if (!n) break;
+        if (p[i] == fg) n--;
+    }
+    if (i == 199) return -1;
+    p += i;
+    while (*p != '.') p++;
+    p++;
+    double b = (double)cin(p, n);
+    while (b > 1) b /= 10;
+    b = a + b;
+    return b;
 }
