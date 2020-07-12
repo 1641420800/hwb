@@ -15,6 +15,7 @@
 //=======================================================================================================
 #define ALINK_BODY_FORMAT         "{\"id\":\"111\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post"
+#define ALINK_TOPIC_SJBH_POST     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/shujushangbao/post"
 #define ALINK_TOPIC_PROP_POSTRSP  "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post_reply"
 #define ALINK_TOPIC_PROP_SET      "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/service/property/set"
 #define ALINK_METHOD_PROP_POST    "thing.event.property.post"
@@ -60,6 +61,7 @@ void dch(double d, int bl, char *p);
 void init_wifi(const char *ssid, const char *password);
 void mqtt_callback(char *topic, byte *payload, unsigned int length);
 void mqtt_version_post();
+void mqtt_sjbh_post(int wz);
 void mqtt_check_connect();
 void mqtt_interval_post();
 struct SHUJU* bcdz(int bh);
@@ -125,6 +127,7 @@ void loop() {
     pingjun();
     mqtt_check_connect();
     mqtt_interval_post();     //上交数据
+    for (int i = 0; i < yicun; i++)mqtt_sjbh_post(i);
     digitalWrite(LED_PIN, LED = !LED);
     mqttClient.loop();
   }
@@ -183,6 +186,17 @@ void mqtt_interval_post() {
           , pjsj.gz, pjsj.hy, s1 , pjsj.mq, pjsj.tr, s2, pjsj.yd);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
   mqttClient.publish(ALINK_TOPIC_PROP_POST, jsonBuf);
+}
+void mqtt_sjbh_post(int wz) {
+  char param[512];
+  char jsonBuf[1024];
+  char s1[20], s2[20];
+  dch((double)biao[wz].p->dth[0], 2, s1);
+  dch((double)biao[wz].p->dth[1], 2, s2);
+  sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d}"
+          , biao[wz].p->gz, biao[wz].p->hy, s1 , biao[wz].p->mq, biao[wz].p->tr, s2, biao[wz].p->yd);
+  sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
+  mqttClient.publish(ALINK_TOPIC_SJBH_POST, jsonBuf);
 }
 //======================================================================================================= 串口通信支持部分
 int mlcl(char* s, char* ml)           //命令处理-判断s的开头是否为ml 是-将s中ml删掉
