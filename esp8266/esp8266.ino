@@ -46,7 +46,7 @@ unsigned long lastMs = 0;
 unsigned int WAIT_MS = 2000;
 
 struct ML *p1 = new struct ML, *p2 = p1;    //队列出入口
-struct BIAO biao[100];                      //表
+struct BIAO *biao = new struct BIAO[50];    //表
 int yicun = 0;                              //已存
 struct SHUJU pjsj;                          //平均数据
 char ml[200] = {'\0'};                      //通信数据缓存数组
@@ -81,12 +81,11 @@ void loop() {
   char lss[200] = { 0 };
   while (Serial.available()) {                          //处理串口
     ml[ml_i] = char(Serial.read());
-    if (ml[ml_i] == '$' && ml_i != 0) {
+    if (ml[ml_i] == '\n' && ml_i != 0) {
       p2->p = new ML;
       for (i = 0; i < ml_i; i++) p2->ml[i] = ml[i];
       p2 = p2->p;
-      ml_i = 0;
-      ml[ml_i] = '$';
+      ml_i = -1;
     }
     ml_i++;
   }
@@ -94,27 +93,33 @@ void loop() {
     if (mlcl(p1->ml, "gm:")) {         //光照
       sj = bcdz( cin(p1->ml, 0));
       sj -> gz = cin(p1->ml, 1);
+      Serial.print("OK\r\n");
     }
     if (mlcl(p1->ml, "hy:")) {         //火焰
       sj = bcdz( cin(p1->ml, 0));
       sj -> hy = cin(p1->ml, 1);
+      Serial.print("OK\r\n");
     }
     if (mlcl(p1->ml, "mq:")) {         //空气质量
       sj = bcdz( cin(p1->ml, 0));
       sj -> mq = cin(p1->ml, 1);
+      Serial.print("OK\r\n");
     }
     if (mlcl(p1->ml, "dth:")) {        //温湿度
-      //sj = bcdz( cin(p1->ml, 0));
+      sj = bcdz( cin(p1->ml, 0));
       sj -> dth[0] = cdo(p1->ml, 1);
       sj -> dth[1] = cdo(p1->ml, 2);
+      Serial.print("OK\r\n");
     }
     if (mlcl(p1->ml, "yd:")) {         //雨滴
       sj = bcdz( cin(p1->ml, 0));
       sj -> yd = cin(p1->ml, 1);
+      Serial.print("OK\r\n");
     }
     if (mlcl(p1->ml, "tr:")) {         //土壤
       sj = bcdz( cin(p1->ml, 0));
       sj -> tr = cin(p1->ml, 1);
+      Serial.print("OK\r\n");
     }
 
 
@@ -132,6 +137,7 @@ void loop() {
   }
   mqttClient.loop();
   delay(WAIT_MS); // ms
+  Serial.println(ESP.getFreeHeap());
 }
 //======================================================================================================= WIFI连接
 void init_wifi(const char *ssid, const char *password) {
@@ -182,20 +188,23 @@ void mqtt_interval_post() {
   char s1[20], s2[20];
   dch((double)pjsj.dth[0], 2, s1);
   dch((double)pjsj.dth[1], 2, s2);
-  sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d}"
-          , pjsj.gz, pjsj.hy, s1 , pjsj.mq, pjsj.tr, s2, pjsj.yd);
+  sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d,\"shuliang\":%d}"
+          , pjsj.gz, pjsj.hy, s1 , pjsj.mq, pjsj.tr, s2, pjsj.yd,yicun);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
+  Serial.println(jsonBuf);
   mqttClient.publish(ALINK_TOPIC_PROP_POST, jsonBuf);
 }
 void mqtt_sjbh_post(int wz) {
   char param[512];
   char jsonBuf[1024];
   char s1[20], s2[20];
-  dch((double)biao[wz].p->dth[0], 2, s1);
-  dch((double)biao[wz].p->dth[1], 2, s2);
-  sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d}"
-          , biao[wz].p->gz, biao[wz].p->hy, s1 , biao[wz].p->mq, biao[wz].p->tr, s2, biao[wz].p->yd);
+  struct SHUJU *pp = biao[wz].p;
+  dch((double)pp->dth[0], 2, s1);
+  dch((double)pp->dth[1], 2, s2);
+  sprintf(param, "{\"bianhao\":%d,\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d}"
+          , biao[wz].bh, biao[wz].p->gz, biao[wz].p->hy, s1 , biao[wz].p->mq, biao[wz].p->tr, s2, biao[wz].p->yd);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
+  Serial.println(jsonBuf);
   mqttClient.publish(ALINK_TOPIC_SJBH_POST, jsonBuf);
 }
 //======================================================================================================= 串口通信支持部分
@@ -304,9 +313,10 @@ struct SHUJU* bcdz(int bh) {
   for (i = 0; i < yicun; i++) {
     if (biao[i].bh == bh) return biao[i].p;
   }
-  if (yicun < 100) {
+  if (yicun < 50) {
     biao[yicun].bh = bh;
     p = new struct SHUJU;
+    biao[yicun].p = p;
     yicun++;
     return p;
   }
@@ -314,6 +324,7 @@ struct SHUJU* bcdz(int bh) {
 }
 void pingjun() {
   int i;
+  if(!yicun) return;
   pjsj.hy = 0;
   pjsj.gz = 0;
   pjsj.mq = 0;
@@ -322,7 +333,7 @@ void pingjun() {
   pjsj.dth[0] = 0;
   pjsj.dth[1] = 0;
   for (i = 0; i < yicun; i++) {
-    if (biao[i].p = NULL) continue;
+    if (biao[i].p == NULL) continue;
     pjsj.hy += biao[i].p->hy;
     pjsj.gz += biao[i].p->gz;
     pjsj.mq += biao[i].p->mq;
@@ -331,9 +342,9 @@ void pingjun() {
     pjsj.dth[1] += biao[i].p->dth[1];
   }
   if (pjsj.hy) pjsj.hy = 1;
-  pjsj.gz /= yicun;
-  pjsj.mq /= yicun;
-  pjsj.tr /= yicun;
-  pjsj.dth[0] /= yicun;
-  pjsj.dth[1] /= yicun;
+  pjsj.gz = pjsj.gz / yicun;
+  pjsj.mq = pjsj.mq / yicun;
+  pjsj.tr = pjsj.tr / yicun;
+  pjsj.dth[0] = pjsj.dth[0] / yicun;
+  pjsj.dth[1] = pjsj.dth[1] / yicun;
 }
