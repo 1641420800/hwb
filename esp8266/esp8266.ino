@@ -4,8 +4,8 @@
 //=======================================================================================================
 #define SENSOR_PIN 13
 //=======================================================================================================
-#define WIFI_SSID        "Yxg-164"         //替换自己的WIFI
-#define WIFI_PASSWD      "1641420800"        //替换自己的WIFI
+#define WIFI_SSID        "1641420800"         //替换自己的WIFI
+#define WIFI_PASSWD      "15612774227"        //替换自己的WIFI
 //=======================================================================================================
 #define PRODUCT_KEY      "a15FrrRNdXl"        //替换自己的PRODUCT_KEY
 #define DEVICE_NAME      "ceshi"              //替换自己的DEVICE_NAME
@@ -91,28 +91,28 @@ void loop() {
     ml_i++;
   }
   while (p1->p) {
-    if (mlcl(p1->ml, "gm")) {         //光照
+    if (mlcl(p1->ml, "gm:")) {         //光照
       sj = bcdz( cin(p1->ml, 0));
       sj -> gz = cin(p1->ml, 1);
     }
-    if (mlcl(p1->ml, "hy")) {         //火焰
+    if (mlcl(p1->ml, "hy:")) {         //火焰
       sj = bcdz( cin(p1->ml, 0));
       sj -> hy = cin(p1->ml, 1);
     }
-    if (mlcl(p1->ml, "mq")) {         //空气质量
+    if (mlcl(p1->ml, "mq:")) {         //空气质量
       sj = bcdz( cin(p1->ml, 0));
       sj -> mq = cin(p1->ml, 1);
     }
-    if (mlcl(p1->ml, "dth")) {        //温湿度
-      sj = bcdz( cin(p1->ml, 0));
+    if (mlcl(p1->ml, "dth:")) {        //温湿度
+      //sj = bcdz( cin(p1->ml, 0));
       sj -> dth[0] = cdo(p1->ml, 1);
       sj -> dth[1] = cdo(p1->ml, 2);
     }
-    if (mlcl(p1->ml, "yd")) {         //雨滴
+    if (mlcl(p1->ml, "yd:")) {         //雨滴
       sj = bcdz( cin(p1->ml, 0));
       sj -> yd = cin(p1->ml, 1);
     }
-    if (mlcl(p1->ml, "tr")) {         //土壤
+    if (mlcl(p1->ml, "tr:")) {         //土壤
       sj = bcdz( cin(p1->ml, 0));
       sj -> tr = cin(p1->ml, 1);
     }
@@ -129,9 +129,9 @@ void loop() {
     mqtt_interval_post();     //上交数据
     for (int i = 0; i < yicun; i++)mqtt_sjbh_post(i);
     digitalWrite(LED_PIN, LED = !LED);
-    mqttClient.loop();
   }
-  //delay(WAIT_MS); // ms
+  mqttClient.loop();
+  delay(WAIT_MS); // ms
 }
 //======================================================================================================= WIFI连接
 void init_wifi(const char *ssid, const char *password) {
@@ -313,9 +313,16 @@ struct SHUJU* bcdz(int bh) {
   return NULL;
 }
 void pingjun() {
-  pjsj.hy = pjsj.gz = pjsj.mq = pjsj.yd = pjsj.tr = 0;
-  pjsj.dth[0] = pjsj.dth[1] = 0;
-  for (int i; i < yicun; i++) {
+  int i;
+  pjsj.hy = 0;
+  pjsj.gz = 0;
+  pjsj.mq = 0;
+  pjsj.yd = 0;
+  pjsj.tr = 0;
+  pjsj.dth[0] = 0;
+  pjsj.dth[1] = 0;
+  for (i = 0; i < yicun; i++) {
+    if (biao[i].p = NULL) continue;
     pjsj.hy += biao[i].p->hy;
     pjsj.gz += biao[i].p->gz;
     pjsj.mq += biao[i].p->mq;
