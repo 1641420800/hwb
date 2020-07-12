@@ -200,6 +200,7 @@ void loop()
       lcd.print("                ");
     }
     esp.print(p1->ml);
+    esp.print("\n");
     p = p1;
     p1 = p1->p;
     delete p;
