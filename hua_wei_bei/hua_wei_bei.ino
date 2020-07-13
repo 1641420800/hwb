@@ -110,7 +110,7 @@ void loop() {
   }
 //=========================================================
   if (sjpd(jg.hy)) {
-    cgq.hy = digitalRead(_hy);
+    cgq.hy = !digitalRead(_hy);
     Serial.print("hy:");
     Serial.print(_bianhao);
     Serial.print(",");
