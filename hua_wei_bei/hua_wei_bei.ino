@@ -1,14 +1,16 @@
 #include <dht11.h>          //包含dht11.h
 //=========================================================
 #define _bianhao  "1"
-#define _gm       A6
-#define _mq135    A3
-#define _tr       A2
 #define _dth11    A1
+#define _mq135    A2
+#define _hy       A3
+#define _gm       A4
+#define _tr       A5
+#define _yd       A6
 //=========================================================
 enum
 {
-  GM = 2, MQ = 4, TR, DTH
+  GM = 2, HY, MQ , TR, YD, DTH
 } kg;
 //=========================================================
 struct ML {
@@ -17,16 +19,20 @@ struct ML {
 };
 struct KG {
   unsigned int gm : 1;
+  unsigned int hy : 1;
   unsigned int mq : 1;
-  unsigned int tr : 1;
   unsigned int dth: 1;
+  unsigned int yd : 1;
+  unsigned int tr : 1;
 };
 struct CGQ {
-  KG    kg      = {1, 1, 1, 1};
+  KG    kg      = {1, 1, 1, 1, 1, 1};
   float wsd[2]  = {0};
   int   gm      = 0;
   int   mq135   = 0;
   int   tr      = 0;
+  int   hy      = 0;
+  int   yd      = 0;
 };
 struct SJ {
   int shi;
@@ -38,6 +44,8 @@ struct FSJG { //时  分  秒
   SJ mq[2]  = {0 , 0 , 20};   //MQ135
   SJ tr[2]  = {0 , 0 , 10};   //土壤湿度
   SJ dth[2] = {0 , 0 , 5};    //温湿度
+  SJ hy[2]  = {0 , 0 , 20};   //火焰
+  SJ yd[2] =  {0 , 0 , 20};   //雨滴
 };
 //=========================================================
 CGQ   cgq;
@@ -67,12 +75,17 @@ void setup() {
   digitalWrite(TR, HIGH);
   pinMode(DTH, OUTPUT);
   digitalWrite(DTH, HIGH);
+  pinMode(YD, OUTPUT);
+  digitalWrite(YD, HIGH);
+  pinMode(HY, OUTPUT);
+  digitalWrite(HY, HIGH);
   pinMode(13, HIGH);
   pinMode(_gm, INPUT);
   pinMode(_mq135, INPUT);
   pinMode(_tr, INPUT);
   pinMode(_dth11, INPUT);
-
+  pinMode(_yd, INPUT);
+  pinMode(_hy, INPUT);
 }
 //=========================================================
 void loop() {
@@ -93,12 +106,21 @@ void loop() {
   if (t > t1) t = 0;
   if (sj.shi < 0) sj.shi = 0;
   digitalWrite(13, !(sj.miao % 10));
+
   if (sjpd(jg.gm) && cgq.kg.gm) {
     cgq.gm = analogRead(_gm);
     Serial.print("gm:");
     Serial.print(_bianhao);
     Serial.print(",");
     Serial.print(cgq.gm);
+    Serial.print("\r\n");
+  }
+  if (sjpd(jg.hy) && cgq.kg.hy) {
+    cgq.hy = digitalRead(_hy);
+    Serial.print("hy:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.hy);
     Serial.print("\r\n");
   }
   if (sjpd(jg.mq) && cgq.kg.mq) {
@@ -109,14 +131,6 @@ void loop() {
     Serial.print(cgq.mq135);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.tr) && cgq.kg.tr) {
-    cgq.tr = analogRead(_tr);
-    Serial.print("tr:");
-    Serial.print(_bianhao);
-    Serial.print(",");
-    Serial.print(cgq.tr);
-    Serial.print("\r\n");
-  }
   if (sjpd(jg.dth) && cgq.kg.dth) {
     dth();
     Serial.print("dth:");
@@ -125,6 +139,24 @@ void loop() {
     Serial.print(cgq.wsd[0]);
     Serial.print(",");
     Serial.print(cgq.wsd[1]);
+    Serial.print("\r\n");
+  }
+  if (sjpd(jg.yd) && cgq.kg.yd) {
+    cgq.yd = analogRead(_yd);
+    Serial.print("yd:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.yd);
+    Serial.print("\r\n");
+  }
+  if (sjpd(jg.tr) && cgq.kg.tr) {
+    cgq.tr = analogRead(_tr);
+    cgq.tr /= 10.24;
+    cgq.tr = 100 - cgq.tr;
+    Serial.print("tr:");
+    Serial.print(_bianhao);
+    Serial.print(",");
+    Serial.print(cgq.tr);
     Serial.print("\r\n");
   }
   while (Serial.available()) {
@@ -144,13 +176,19 @@ void loop() {
           cgq.kg.gm = cin(p1->ml, 1);
           break;
         case 1:
-          cgq.kg.mq = cin(p1->ml, 1);
+          cgq.kg.hy = cin(p1->ml, 1);
           break;
         case 2:
-          cgq.kg.tr = cin(p1->ml, 1);
+          cgq.kg.mq = cin(p1->ml, 1);
           break;
         case 3:
           cgq.kg.dth = cin(p1->ml, 1);
+          break;
+        case 4:
+          cgq.kg.yd = cin(p1->ml, 1);
+          break;
+        case 5:
+          cgq.kg.tr = cin(p1->ml, 1);
           break;
       }
     } else if (mlcl(p1->ml, "ds:")) {
@@ -161,28 +199,36 @@ void loop() {
           jg.gm[0].miao = cin(p1->ml, 3);
           break;
         case 1:
+          jg.hy[0].shi  = cin(p1->ml, 1);
+          jg.hy[0].fen  = cin(p1->ml, 2);
+          jg.hy[0].miao = cin(p1->ml, 3);
+          break;
+        case 2:
           jg.mq[0].shi  = cin(p1->ml, 1);
           jg.mq[0].fen  = cin(p1->ml, 2);
           jg.mq[0].miao = cin(p1->ml, 3);
-          break;
-        case 2:
-          jg.tr[0].shi  = cin(p1->ml, 1);
-          jg.tr[0].fen  = cin(p1->ml, 2);
-          jg.tr[0].miao = cin(p1->ml, 3);
           break;
         case 3:
           jg.dth[0].shi = cin(p1->ml, 1);
           jg.dth[0].fen = cin(p1->ml, 2);
           jg.dth[0].miao = cin(p1->ml, 3);
           break;
+        case 4:
+          jg.yd[0].shi = cin(p1->ml, 1);
+          jg.yd[0].fen = cin(p1->ml, 2);
+          jg.yd[0].miao = cin(p1->ml, 3);
+          break;
+        case 5:
+          jg.tr[0].shi  = cin(p1->ml, 1);
+          jg.tr[0].fen  = cin(p1->ml, 2);
+          jg.tr[0].miao = cin(p1->ml, 3);
+          break;
       }
     }
-
     p = p1;
     p1 = p1->p;
     delete p;
   }
-
   kaiguan();
 }
 //=========================================================
@@ -197,6 +243,8 @@ void kaiguan() {
   digitalWrite(MQ , cgq.kg.mq );
   digitalWrite(TR , cgq.kg.tr );
   digitalWrite(DTH, cgq.kg.dth);
+  digitalWrite(HY , cgq.kg.hy );
+  digitalWrite(YD, cgq.kg.yd);
 }
 //=========================================================
 int sjpd(SJ *p) {
