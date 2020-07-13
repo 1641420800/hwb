@@ -292,7 +292,7 @@ void dch(double d, int bl, char *p) {
     *p = '0';
     p++;
   }
-  while (d != 0) {
+  while (d != 0 || ws > 0) {
     if (!ws) {
       *p = '.';
       p++;
