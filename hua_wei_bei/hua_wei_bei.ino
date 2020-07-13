@@ -69,7 +69,7 @@ void setup() {
   pinMode(YD, OUTPUT);
   digitalWrite(YD, LOW);
   pinMode(HY, OUTPUT);
-  digitalWrite(HY, LOW);
+  digitalWrite(HY, HIGH);
   pinMode(13, HIGH);
   pinMode(_gm, INPUT);
   pinMode(_mq135, INPUT);
@@ -110,9 +110,7 @@ void loop() {
   }
 //=========================================================
   if (sjpd(jg.hy)) {
-    digitalWrite(HY , 1);
     cgq.hy = digitalRead(_hy);
-    digitalWrite(HY , 0);
     Serial.print("hy:");
     Serial.print(_bianhao);
     Serial.print(",");
