@@ -47,6 +47,7 @@ const char fg = ',';                     //分隔符
 char hc[200] = {0};
 int  hc_i    = 0;
 unsigned int t = 0;
+int cgqhy = 0;
 //=========================================================
 dht11 DHT11;                //初始化dht11类
 //=========================================================
@@ -97,7 +98,7 @@ void loop() {
   if (t > t1) t = 0;
   if (sj.shi < 0) sj.shi = 0;
   digitalWrite(13, !(sj.miao % 10));
-//=========================================================
+  //=========================================================
   if (sjpd(jg.gm)) {
     digitalWrite(GM , 1);
     cgq.gm = analogRead(_gm);
@@ -108,19 +109,20 @@ void loop() {
     Serial.print(cgq.gm);
     Serial.print("\r\n");
   }
-//=========================================================
+  //=========================================================
   if (sjpd(jg.hy)) {
-    cgq.hy = digitalRead(_hy);
-    if(cgq.hy){
-      Serial.print("lcdjr:10,2,Fire warning\r\n");
+    cgq.hy = !digitalRead(_hy);
+    if (cgq.hy && !cgqhy) {
+      Serial.print("lcdjr:3,10,Fire warning\r\n");
     }
+    cgqhy = cgq.hy;
     Serial.print("hy:");
     Serial.print(_bianhao);
     Serial.print(",");
     Serial.print(cgq.hy);
     Serial.print("\r\n");
   }
-//=========================================================
+  //=========================================================
   if (sjpd(jg.mq)) {
     cgq.mq135 = analogRead(_mq135);
     Serial.print("mq:");
@@ -129,7 +131,7 @@ void loop() {
     Serial.print(cgq.mq135);
     Serial.print("\r\n");
   }
-//=========================================================
+  //=========================================================
   if (sjpd(jg.dth)) {
     dth();
     Serial.print("dth:");
@@ -140,8 +142,8 @@ void loop() {
     Serial.print(cgq.wsd[1]);
     Serial.print("\r\n");
   }
-//=========================================================
-  
+  //=========================================================
+
   if (sjpd(jg.yd)) {
     digitalWrite(YD, 1);
     cgq.yd = analogRead(_yd);
@@ -152,7 +154,7 @@ void loop() {
     Serial.print(cgq.yd);
     Serial.print("\r\n");
   }
-//========================================================= 
+  //=========================================================
   if (sjpd(jg.tr)) {
     digitalWrite(TR, 1);
     cgq.tr = analogRead(_tr);
@@ -165,7 +167,7 @@ void loop() {
     Serial.print(cgq.tr);
     Serial.print("\r\n");
   }
-//=========================================================
+  //=========================================================
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
     if (hc[hc_i] == '\n' && hc_i != 0) {
