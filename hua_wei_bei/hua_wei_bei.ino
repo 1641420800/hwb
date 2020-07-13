@@ -17,16 +17,7 @@ struct ML {
   char ml[200] = {'\0'};
   struct ML *p = NULL;
 };
-struct KG {
-  unsigned int gm : 1;
-  unsigned int hy : 1;
-  unsigned int mq : 1;
-  unsigned int dth: 1;
-  unsigned int yd : 1;
-  unsigned int tr : 1;
-};
 struct CGQ {
-  KG    kg      = {1, 1, 1, 1, 1, 1};
   float wsd[2]  = {0};
   int   gm      = 0;
   int   mq135   = 0;
@@ -44,7 +35,7 @@ struct FSJG { //时  分  秒
   SJ mq[2]  = {0 , 0 , 20};   //MQ135
   SJ tr[2]  = {0 , 0 , 10};   //土壤湿度
   SJ dth[2] = {0 , 0 , 5};    //温湿度
-  SJ hy[2]  = {0 , 0 , 20};   //火焰
+  SJ hy[2]  = {0 , 0 , 1};   //火焰
   SJ yd[2] =  {0 , 0 , 20};   //雨滴
 };
 //=========================================================
@@ -106,8 +97,9 @@ void loop() {
   if (t > t1) t = 0;
   if (sj.shi < 0) sj.shi = 0;
   digitalWrite(13, !(sj.miao % 10));
-
-  if (sjpd(jg.gm) && cgq.kg.gm) {
+//=========================================================
+  digitalWrite(GM , 1);
+  if (sjpd(jg.gm)) {
     cgq.gm = analogRead(_gm);
     Serial.print("gm:");
     Serial.print(_bianhao);
@@ -115,7 +107,10 @@ void loop() {
     Serial.print(cgq.gm);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.hy) && cgq.kg.hy) {
+  digitalWrite(GM , 0);
+//=========================================================
+  digitalWrite(HY , 1);
+  if (sjpd(jg.hy)) {
     cgq.hy = digitalRead(_hy);
     Serial.print("hy:");
     Serial.print(_bianhao);
@@ -123,7 +118,9 @@ void loop() {
     Serial.print(cgq.hy);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.mq) && cgq.kg.mq) {
+  digitalWrite(HY , 0);
+//=========================================================
+  if (sjpd(jg.mq)) {
     cgq.mq135 = analogRead(_mq135);
     Serial.print("mq:");
     Serial.print(_bianhao);
@@ -131,7 +128,8 @@ void loop() {
     Serial.print(cgq.mq135);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.dth) && cgq.kg.dth) {
+//=========================================================
+  if (sjpd(jg.dth)) {
     dth();
     Serial.print("dth:");
     Serial.print(_bianhao);
@@ -141,7 +139,9 @@ void loop() {
     Serial.print(cgq.wsd[1]);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.yd) && cgq.kg.yd) {
+//=========================================================
+  digitalWrite(YD, 1);
+  if (sjpd(jg.yd)) {
     cgq.yd = analogRead(_yd);
     Serial.print("yd:");
     Serial.print(_bianhao);
@@ -149,7 +149,10 @@ void loop() {
     Serial.print(cgq.yd);
     Serial.print("\r\n");
   }
-  if (sjpd(jg.tr) && cgq.kg.tr) {
+  digitalWrite(YD, 0);
+//=========================================================
+  digitalWrite(TR, 1);
+  if (sjpd(jg.tr)) {
     cgq.tr = analogRead(_tr);
     cgq.tr /= 10.24;
     cgq.tr = 100 - cgq.tr;
@@ -159,6 +162,8 @@ void loop() {
     Serial.print(cgq.tr);
     Serial.print("\r\n");
   }
+  digitalWrite(TR, 0);
+//=========================================================
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
     if (hc[hc_i] == '\n' && hc_i != 0) {
@@ -170,28 +175,7 @@ void loop() {
     hc_i++;
   }
   while (p1->p) {
-    if (mlcl(p1->ml, "kg:")) {
-      switch (cin(p1->ml, 0)) {
-        case 0:
-          cgq.kg.gm = cin(p1->ml, 1);
-          break;
-        case 1:
-          cgq.kg.hy = cin(p1->ml, 1);
-          break;
-        case 2:
-          cgq.kg.mq = cin(p1->ml, 1);
-          break;
-        case 3:
-          cgq.kg.dth = cin(p1->ml, 1);
-          break;
-        case 4:
-          cgq.kg.yd = cin(p1->ml, 1);
-          break;
-        case 5:
-          cgq.kg.tr = cin(p1->ml, 1);
-          break;
-      }
-    } else if (mlcl(p1->ml, "ds:")) {
+    if (mlcl(p1->ml, "ds:")) {
       switch (cin(p1->ml, 0)) {
         case 0:
           jg.gm[0].shi  = cin(p1->ml, 1);
@@ -229,22 +213,12 @@ void loop() {
     p1 = p1->p;
     delete p;
   }
-  kaiguan();
 }
 //=========================================================
 void dth() {      //dth11
   DHT11.read(_dth11); //初始化引脚并进行一次通信且返回通信结果
   cgq.wsd[0] = (float)DHT11.temperature;
   cgq.wsd[1] = (float)DHT11.humidity;
-}
-//=========================================================
-void kaiguan() {
-  digitalWrite(GM , cgq.kg.gm );
-  digitalWrite(MQ , cgq.kg.mq );
-  digitalWrite(TR , cgq.kg.tr );
-  digitalWrite(DTH, cgq.kg.dth);
-  digitalWrite(HY , cgq.kg.hy );
-  digitalWrite(YD, cgq.kg.yd);
 }
 //=========================================================
 int sjpd(SJ *p) {
