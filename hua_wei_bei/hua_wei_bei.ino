@@ -35,7 +35,7 @@ struct FSJG { //时  分  秒
   SJ mq[2]  = {0 , 0 , 20};   //MQ135
   SJ tr[2]  = {0 , 0 , 10};   //土壤湿度
   SJ dth[2] = {0 , 0 , 5};    //温湿度
-  SJ hy[2]  = {0 , 0 , 1};   //火焰
+  SJ hy[2]  = {0 , 0 , 1};    //火焰
   SJ yd[2] =  {0 , 0 , 20};   //雨滴
 };
 //=========================================================
@@ -110,7 +110,10 @@ void loop() {
   }
 //=========================================================
   if (sjpd(jg.hy)) {
-    cgq.hy = !digitalRead(_hy);
+    cgq.hy = digitalRead(_hy);
+    if(cgq.hy){
+      Serial.print("lcdjr:10,2,Fire warning\r\n");
+    }
     Serial.print("hy:");
     Serial.print(_bianhao);
     Serial.print(",");

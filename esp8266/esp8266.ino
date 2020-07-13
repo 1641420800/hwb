@@ -66,7 +66,7 @@ void mqtt_check_connect();
 void mqtt_interval_post();
 struct SHUJU* bcdz(int bh);
 void pingjun();
-void fs(int n);
+void fanhui(int n);
 
 //=======================================================================================================
 void setup() {
@@ -138,7 +138,7 @@ void loop() {
   }
   mqttClient.loop();
   delay(WAIT_MS); // ms
-  fs((millis() / WAIT_MS) % 7);
+  fanhui((millis() / WAIT_MS) % 7);
 }
 //======================================================================================================= WIFI连接
 void init_wifi(const char *ssid, const char *password) {
@@ -351,7 +351,7 @@ void pingjun() {
   pjsj.dth[0] = pjsj.dth[0] / yicun;
   pjsj.dth[1] = pjsj.dth[1] / yicun;
 }
-void fs(int n) {
+void fanhui(int n) {
   switch (n) {
     case 0:
       Serial.print("lcd:NUM:");
