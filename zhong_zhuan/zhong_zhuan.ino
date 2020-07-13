@@ -170,6 +170,7 @@ void loop()
   }
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
+    esp.print(hc[hc_i]);
     if (hc[hc_i] == '\n' && hc_i != 0) {
       p2->p = new ML;
       for (i = 0; i < hc_i; i++) p2->ml[i] = hc[i];
