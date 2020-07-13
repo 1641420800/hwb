@@ -59,17 +59,17 @@ int cin(char* p, int x);
 void setup() {
   Serial.begin(9600);
   pinMode(GM, OUTPUT);
-  digitalWrite(GM, HIGH);
+  digitalWrite(GM, LOW);
   pinMode(MQ, OUTPUT);
   digitalWrite(MQ, HIGH);
   pinMode(TR, OUTPUT);
-  digitalWrite(TR, HIGH);
+  digitalWrite(TR, LOW);
   pinMode(DTH, OUTPUT);
   digitalWrite(DTH, HIGH);
   pinMode(YD, OUTPUT);
-  digitalWrite(YD, HIGH);
+  digitalWrite(YD, LOW);
   pinMode(HY, OUTPUT);
-  digitalWrite(HY, HIGH);
+  digitalWrite(HY, LOW);
   pinMode(13, HIGH);
   pinMode(_gm, INPUT);
   pinMode(_mq135, INPUT);
@@ -98,27 +98,27 @@ void loop() {
   if (sj.shi < 0) sj.shi = 0;
   digitalWrite(13, !(sj.miao % 10));
 //=========================================================
-  digitalWrite(GM , 1);
   if (sjpd(jg.gm)) {
+    digitalWrite(GM , 1);
     cgq.gm = analogRead(_gm);
+    digitalWrite(GM , 0);
     Serial.print("gm:");
     Serial.print(_bianhao);
     Serial.print(",");
     Serial.print(cgq.gm);
     Serial.print("\r\n");
   }
-  digitalWrite(GM , 0);
 //=========================================================
-  digitalWrite(HY , 1);
   if (sjpd(jg.hy)) {
+    digitalWrite(HY , 1);
     cgq.hy = digitalRead(_hy);
+    digitalWrite(HY , 0);
     Serial.print("hy:");
     Serial.print(_bianhao);
     Serial.print(",");
     Serial.print(cgq.hy);
     Serial.print("\r\n");
   }
-  digitalWrite(HY , 0);
 //=========================================================
   if (sjpd(jg.mq)) {
     cgq.mq135 = analogRead(_mq135);
@@ -140,20 +140,22 @@ void loop() {
     Serial.print("\r\n");
   }
 //=========================================================
-  digitalWrite(YD, 1);
+  
   if (sjpd(jg.yd)) {
+    digitalWrite(YD, 1);
     cgq.yd = analogRead(_yd);
+    digitalWrite(YD, 0);
     Serial.print("yd:");
     Serial.print(_bianhao);
     Serial.print(",");
     Serial.print(cgq.yd);
     Serial.print("\r\n");
   }
-  digitalWrite(YD, 0);
-//=========================================================
-  digitalWrite(TR, 1);
+//========================================================= 
   if (sjpd(jg.tr)) {
+    digitalWrite(TR, 1);
     cgq.tr = analogRead(_tr);
+    digitalWrite(TR, 0);
     cgq.tr /= 10.24;
     cgq.tr = 100 - cgq.tr;
     Serial.print("tr:");
@@ -162,7 +164,6 @@ void loop() {
     Serial.print(cgq.tr);
     Serial.print("\r\n");
   }
-  digitalWrite(TR, 0);
 //=========================================================
   while (Serial.available()) {
     hc[hc_i] = Serial.read();
