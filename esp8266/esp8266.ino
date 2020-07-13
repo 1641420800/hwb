@@ -4,14 +4,14 @@
 //=======================================================================================================
 #define SENSOR_PIN 13
 //=======================================================================================================
-#define WIFI_SSID        "Yxg-164"           //替换自己的WIFI
-#define WIFI_PASSWD      "1641420800"        //替换自己的WIFI
+#define WIFI_SSID        "1641420800"           //替换自己的WIFI
+#define WIFI_PASSWD      "15612774227"          //替换自己的WIFI
 //=======================================================================================================
 #define PRODUCT_KEY      "a15FrrRNdXl"        //替换自己的PRODUCT_KEY
 #define DEVICE_NAME      "ceshi"              //替换自己的DEVICE_NAME
 #define DEVICE_SECRET    "50f4c59aa6025119f20031e989dfbb93"       //替换自己的DEVICE_SECRET
 //=======================================================================================================
-#define DEV_VERSION       "S-TH-WIFI-v1.0-20200710"               //固件版本信息
+#define DEV_VERSION       "HWB-NT-WIFI-v1.0-20200710"               //固件版本信息
 //=======================================================================================================
 #define ALINK_BODY_FORMAT         "{\"id\":\"111\",\"version\":\"1.0\",\"method\":\"%s\",\"params\":%s}"
 #define ALINK_TOPIC_PROP_POST     "/sys/" PRODUCT_KEY "/" DEVICE_NAME "/thing/event/property/post"
@@ -189,7 +189,7 @@ void mqtt_interval_post() {
   dch((double)pjsj.dth[0], 2, s1);
   dch((double)pjsj.dth[1], 2, s2);
   sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d,\"shuliang\":%d}"
-          , pjsj.gz, pjsj.hy, s1 , pjsj.mq, pjsj.tr, s2, pjsj.yd,yicun);
+          , pjsj.gz, pjsj.hy, s2 , pjsj.mq, pjsj.tr, s1, pjsj.yd,yicun);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
   Serial.println(jsonBuf);
   mqttClient.publish(ALINK_TOPIC_PROP_POST, jsonBuf);
@@ -338,6 +338,7 @@ void pingjun() {
     pjsj.gz += biao[i].p->gz;
     pjsj.mq += biao[i].p->mq;
     pjsj.tr += biao[i].p->tr;
+    pjsj.yd += biao[i].p->yd;
     pjsj.dth[0] += biao[i].p->dth[0];
     pjsj.dth[1] += biao[i].p->dth[1];
   }
@@ -345,6 +346,7 @@ void pingjun() {
   pjsj.gz = pjsj.gz / yicun;
   pjsj.mq = pjsj.mq / yicun;
   pjsj.tr = pjsj.tr / yicun;
+  pjsj.yd = pjsj.yd / yicun;
   pjsj.dth[0] = pjsj.dth[0] / yicun;
   pjsj.dth[1] = pjsj.dth[1] / yicun;
 }
