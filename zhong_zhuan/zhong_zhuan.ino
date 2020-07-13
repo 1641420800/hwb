@@ -179,8 +179,6 @@ void loop()
     }
     hc_i++;
   }
-  while (esp.available()) esp.read();
-  /*
   while (esp.available()) {
     ml[ml_i] = esp.read();
     if (ml[ml_i] == '\n' && ml_i != 0) {
@@ -190,9 +188,7 @@ void loop()
       ml_i = -1;
     }
     ml_i++;
-  }
-  */
-  
+  }  
   while (p1->p) {
     if (mlcl(p1->ml, "lcdjr:")) {
       cch(p1->ml, s, 2);

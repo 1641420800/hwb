@@ -66,6 +66,7 @@ void mqtt_check_connect();
 void mqtt_interval_post();
 struct SHUJU* bcdz(int bh);
 void pingjun();
+void fs(int n);
 
 //=======================================================================================================
 void setup() {
@@ -137,7 +138,7 @@ void loop() {
   }
   mqttClient.loop();
   delay(WAIT_MS); // ms
-  Serial.println(ESP.getFreeHeap());
+  fs((millis() / WAIT_MS) % 7);
 }
 //======================================================================================================= WIFI连接
 void init_wifi(const char *ssid, const char *password) {
@@ -148,16 +149,16 @@ void init_wifi(const char *ssid, const char *password) {
 }
 //======================================================================================================= 阿里云物联网支持部分
 void mqtt_callback(char *topic, byte *payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
+  //Serial.print("Message arrived [");
+  //Serial.print(topic);
+  //Serial.print("] ");
   payload[length] = '\0';
-  Serial.println((char *)payload);
+  //Serial.println((char *)payload);
   if (strstr(topic, ALINK_TOPIC_PROP_SET))  {
     StaticJsonBuffer<100> jsonBuffer;
     JsonObject &root = jsonBuffer.parseObject(payload);
     if (!root.success())    {
-      Serial.println("parseObject() failed");
+      //Serial.println("parseObject() failed");
       return;
     }
   }
@@ -168,16 +169,16 @@ void mqtt_version_post() {
   //sprintf(param, "{\"MotionAlarmState\":%d}", digitalRead(13));
   sprintf(param, "{\"id\": 111,\"params\": {\"version\": \"%s\"}}", DEV_VERSION);
   // sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
-  Serial.println(param);
+  //Serial.println(param);
   mqttClient.publish(ALINK_TOPIC_DEV_INFO, param);
 }
 void mqtt_check_connect() {
   while (!mqttClient.connected()) {
     while (connect_aliyun_mqtt(mqttClient, PRODUCT_KEY, DEVICE_NAME, DEVICE_SECRET))    {
-      Serial.println("MQTT connect succeed!");
+      //Serial.println("MQTT connect succeed!");
       //client.subscribe(ALINK_TOPIC_PROP_POSTRSP);
       mqttClient.subscribe(ALINK_TOPIC_PROP_SET);
-      Serial.println("subscribe done");
+      //Serial.println("subscribe done");
       mqtt_version_post();
     }
   }
@@ -189,9 +190,9 @@ void mqtt_interval_post() {
   dch((double)pjsj.dth[0], 2, s1);
   dch((double)pjsj.dth[1], 2, s2);
   sprintf(param, "{\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d,\"shuliang\":%d}"
-          , pjsj.gz, pjsj.hy, s2 , pjsj.mq, pjsj.tr, s1, pjsj.yd,yicun);
+          , pjsj.gz, pjsj.hy, s2 , pjsj.mq, pjsj.tr, s1, pjsj.yd, yicun);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
-  Serial.println(jsonBuf);
+  //Serial.println(jsonBuf);
   mqttClient.publish(ALINK_TOPIC_PROP_POST, jsonBuf);
 }
 void mqtt_sjbh_post(int wz) {
@@ -204,7 +205,7 @@ void mqtt_sjbh_post(int wz) {
   sprintf(param, "{\"bianhao\":%d,\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d}"
           , biao[wz].bh, biao[wz].p->gz, biao[wz].p->hy, s2 , biao[wz].p->mq, biao[wz].p->tr, s1, biao[wz].p->yd);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
-  Serial.println(jsonBuf);
+  //Serial.println(jsonBuf);
   mqttClient.publish(ALINK_TOPIC_SJBH_POST, jsonBuf);
 }
 //======================================================================================================= 串口通信支持部分
@@ -324,7 +325,7 @@ struct SHUJU* bcdz(int bh) {
 }
 void pingjun() {
   int i;
-  if(!yicun) return;
+  if (!yicun) return;
   pjsj.hy = 0;
   pjsj.gz = 0;
   pjsj.mq = 0;
@@ -349,4 +350,43 @@ void pingjun() {
   pjsj.yd = pjsj.yd / yicun;
   pjsj.dth[0] = pjsj.dth[0] / yicun;
   pjsj.dth[1] = pjsj.dth[1] / yicun;
+}
+void fs(int n) {
+  switch (n) {
+    case 0:
+      Serial.print("lcd:NUM:");
+      Serial.print(yicun);
+      Serial.print("\r\n");
+      break;
+    case 1:
+      Serial.print("lcd:Lum:");
+      Serial.print(pjsj.gm);
+      Serial.print("\r\n");
+      break;
+    case 2:
+      Serial.print("lcd:Aih:");
+      Serial.print(pjsj.dth[1]);
+      Serial.print("\r\n");
+      break;
+    case 3:
+      Serial.print("lcd:Ait:");
+      Serial.print(pjsj.dth[0]);
+      Serial.print("\r\n");
+      break;
+    case 4:
+      Serial.print("lcd:Aiq:");
+      Serial.print(pjsj.mq);
+      Serial.print("\r\n");
+      break;
+    case 5:
+      Serial.print("lcd:Som:");
+      Serial.print(pjsj.tr);
+      Serial.print("\r\n");
+      break;
+    case 6:
+      Serial.print("lcd:Rai:");
+      Serial.print(pjsj.yd);
+      Serial.print("\r\n");
+      break;
+  }
 }
