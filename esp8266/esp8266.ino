@@ -202,7 +202,7 @@ void mqtt_sjbh_post(int wz) {
   dch((double)pp->dth[0], 2, s1);
   dch((double)pp->dth[1], 2, s2);
   sprintf(param, "{\"bianhao\":%d,\"guangqiang\":%d,\"huoyan\":%d,\"kongqishidu\":%s,\"kongqizhiliang\":%d,\"turangshidu\":%d,\"wendu\":%s,\"yudi\":%d}"
-          , biao[wz].bh, biao[wz].p->gz, biao[wz].p->hy, s1 , biao[wz].p->mq, biao[wz].p->tr, s2, biao[wz].p->yd);
+          , biao[wz].bh, biao[wz].p->gz, biao[wz].p->hy, s2 , biao[wz].p->mq, biao[wz].p->tr, s1, biao[wz].p->yd);
   sprintf(jsonBuf, ALINK_BODY_FORMAT, ALINK_METHOD_PROP_POST, param);
   Serial.println(jsonBuf);
   mqttClient.publish(ALINK_TOPIC_SJBH_POST, jsonBuf);
