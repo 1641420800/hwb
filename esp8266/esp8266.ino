@@ -360,7 +360,7 @@ void fs(int n) {
       break;
     case 1:
       Serial.print("lcd:Lum:");
-      Serial.print(pjsj.gm);
+      Serial.print(pjsj.gz);
       Serial.print("\r\n");
       break;
     case 2:
